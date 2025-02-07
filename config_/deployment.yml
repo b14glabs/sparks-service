@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sparks-point-service
+  labels:
+    app: sparks-point-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sparks-point-service
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: sparks-point-service
+    spec:
+      containers:
+        - name: sparks-point-service
+          image: easyprompt2023/sparks-point-service:latest
+          command: ['node']
+          args: ['dist/index.js']
+          imagePullPolicy: Always
+          env:
+            - name: MONGO_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sparks-point-service
+                  key: MONGO_URL
+            - name: RPC_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sparks-point-service
+                  key: RPC_URL
+      imagePullSecrets:
+        - name: cred-docker-hub
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sparks-point-service
+spec:
+  ports:
+    - name: http
+      port: 3001
+      targetPort: 3001
+  selector:
+    app: sparks-point-service
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sparks-point-service-ingress
+
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: api.b14g.xyz
+      http:
+        paths:
+          - pathType: Prefix
+            path: '/restake/sparks-point'
+            backend:
+              service:
+                name: sparks-point-service
+                port:
+                  number: 3001
+

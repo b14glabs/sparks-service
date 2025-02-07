@@ -1,0 +1,6 @@
+.env
+dist
+node_modules/
+.cache/
+.idea
+src/log/
