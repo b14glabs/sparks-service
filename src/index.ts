@@ -6,6 +6,7 @@ import mongoose from 'mongoose'
 import morgan from 'morgan'
 import Web3 from 'web3'
 import pointRoutes from "./routes/route"
+import { snapshot } from './cronjob/sparks'
 dotenv.config()
 
 const app: Express = express()
@@ -24,7 +25,10 @@ mongoose
   .connect(process.env.MONGO_URL, { dbName: 'user' })
   .then(() => {
     console.log('[DB]: Connected to MongoDB')
+    snapshot()
     app.listen(port, async () => {
       console.log(`[server]: Server is running at http://localhost:${port}`)
     })
   })
+
+

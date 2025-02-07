@@ -1,10 +1,17 @@
 
 import { RootFilterQuery } from 'mongoose'
 import { ISparksPoint, SparksPoint } from '../models'
-import { TYPE } from '../const'
 
 export const createSparkPoint = (data: ISparksPoint[]) => {
   return SparksPoint.insertMany(data, { ordered: false })
+}
+
+export const checkSavedSparkPointToday = () => {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  return SparksPoint.findOne({
+    createdAt: { "$gte": today },
+  })
 }
 
 export const getSparkPointRecords = () => {

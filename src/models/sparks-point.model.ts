@@ -19,11 +19,10 @@ const schemaDefinition = {
     type: String,
     required: true,
   },
-  corePrice: {
+  price: {
     type: Number,
-    required: true
   },
-  mutiplier: Number
+  mutiplier: Number,
 }
 
 

@@ -1,5 +1,6 @@
 import { RootFilterQuery } from 'mongoose'
 import { IPoint, Point } from '../models'
+import { TYPE } from '../const';
 
 export const getPointRecords = () => {
   return Point.aggregate<{ _id: string; totalPoints: number }>([
@@ -16,6 +17,16 @@ export const getPointRecords = () => {
     },
   ])
 }
+
+export const getTodayDualCoreRecords = () => {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  return Point.find({
+    createdAt: { "$gte": today },
+    type: TYPE.DUAL_CORE_SNAPSHOT
+  })
+}
+
 
 export const findPoint = (filter: RootFilterQuery<IPoint>) => {
   return Point.findOne(filter)
