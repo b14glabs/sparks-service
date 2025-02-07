@@ -91,6 +91,7 @@ export const snapshot = async () => {
     })
 
     await createSparkPoint(records)
+    console.log("Snapshot done")
   } catch (error) {
     console.error(error)
   } finally {

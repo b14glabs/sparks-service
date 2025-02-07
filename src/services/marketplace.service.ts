@@ -3,6 +3,11 @@ import { MarketplaceStakeEvents, RewardReceivers, MarketplaceWithdrawEvents } fr
 export const getTotalBtcStakedOfUsers = async () => {
   const totalBtc = await RewardReceivers.aggregate([
     {
+      $match: {
+        unlockTime: { $gt: Math.floor(Date.now() / 1000) }
+      },
+    },
+    {
       $group: {
         _id: '$from',
         btcAmount: {
