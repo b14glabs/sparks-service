@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  sparks-point-service:
+    container_name: sparks-point-service
+    command: node ./dist/index.js
+    restart: always
+    build:
+      context: "."
+      dockerfile: Dockerfile
+    environment:
+      MONGO_URL:
+      RPC_URL:
