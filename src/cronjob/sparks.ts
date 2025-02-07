@@ -24,41 +24,26 @@ export const snapshot = async () => {
     const data = [...dualCore, ...btc, ...stakeRecords, ...withdrawRecords] as any
     data.forEach(el => {
       const holder = el?.holder ? el.holder.toLowerCase() : el._id.toLowerCase()
-      if (holder in hashmap) {
-        if (el?.type === TYPE.DUAL_CORE_SNAPSHOT) {
-          hashmap[holder].dualCore += BigInt(el.amount)
-        }
-
-        if (el.btcAmount) {
-          hashmap[holder].btc += BigInt(el.btcAmount)
-        }
-
-        if (el.stake) {
-          hashmap[holder].core += BigInt(el.stake)
-        }
-        if (el.withdraw) {
-          hashmap[holder].core -= BigInt(el.withdraw)
-        }
-      } else {
+      if (!(holder in hashmap)) {
         hashmap[holder] = {
           btc: BigInt(0),
           core: BigInt(0),
           dualCore: BigInt(0)
         }
-        if (el?.type === TYPE.DUAL_CORE_SNAPSHOT) {
-          hashmap[holder].dualCore = BigInt(el.amount)
-        }
+      } 
+      if (el?.type === TYPE.DUAL_CORE_SNAPSHOT) {
+        hashmap[holder].dualCore += BigInt(el.amount)
+      }
 
-        if (el.btcAmount) {
-          hashmap[holder].btc = BigInt(el.btcAmount)
-        }
+      if (el.btcAmount) {
+        hashmap[holder].btc += BigInt(el.btcAmount)
+      }
 
-        if (el.stake) {
-          hashmap[holder].core = BigInt(el.stake)
-        }
-        if (el.withdraw) {
-          hashmap[holder].core = -BigInt(el.withdraw)
-        }
+      if (el.stake) {
+        hashmap[holder].core += BigInt(el.stake)
+      }
+      if (el.withdraw) {
+        hashmap[holder].core -= BigInt(el.withdraw)
       }
     })
     const dualCorePrice = +(await convertDualCorePrice(corePrice)).toFixed(6)
