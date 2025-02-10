@@ -38,101 +38,121 @@ export const getCurrentCoreStakedOfUsers = async () => {
 
   const totalStake = await MarketplaceStakeEvents.aggregate([
     {
-      $group: {
-        _id: "$delegator",
-        amount: { $sum: { $toDouble: "$amount" } },
-        receiver: { $first: "$receiver" }
-      }
-    },
-    {
-      $lookup: {
-        from: 'RewardReceivers',
-        localField: 'receiver',
-        foreignField: 'rewardReceiver',
-        as: 'expiredReceiver',
+      $lookup:
+      {
+        from: "RewardReceivers",
+        localField: "receiver",
+        foreignField: "rewardReceiver",
+        as: "data",
         pipeline: [
           {
             $project: {
-              _id: 0,
-              rewardReceiver: 1,
-              unlockTime: 1,
+              unlockTime: 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      $replaceRoot:
+      /**
+       * replacementDocument: A document or string.
+       */
+      {
+        newRoot: {
+          $mergeObjects: [
+            {
+              $arrayElemAt: ["$data", 0]
             },
-          },
-        ],
-      },
+            "$$ROOT"
+          ]
+        }
+      }
     },
     {
-      $unwind: {
-        path: '$expiredReceiver',
-        preserveNullAndEmptyArrays: true,
-      },
+      $project:
+      {
+        data: 0
+      }
     },
     {
-      $match: {
-        'expiredReceiver.unlockTime': { $gt: now },
-      },
+      $match:
+      {
+        unlockTime: {
+          $gt: now
+        }
+      }
     },
     {
-      $group: {
-        _id: '$_id',
-        stake: { $sum: "$amount" },
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        stake: 1,
-      },
-    },
+      $group:
+      {
+        _id: "$delegator",
+        stake: {
+          $sum: {
+            $toDouble: "$amount"
+          }
+        }
+      }
+    }
   ]) as unknown as { _id: string, stake: number }[];
   const totalWithdrawn = await MarketplaceWithdrawEvents.aggregate([
     {
-      $group: {
-        _id: "$delegator",
-        amount: { $sum: { $toDouble: "$amount" } },
-        receiver: { $first: "$receiver" }
-      }
-    },
-    {
-      $lookup: {
-        from: 'RewardReceivers',
-        localField: 'receiver',
-        foreignField: 'rewardReceiver',
-        as: 'expiredReceiver',
+      $lookup:
+      {
+        from: "RewardReceivers",
+        localField: "receiver",
+        foreignField: "rewardReceiver",
+        as: "data",
         pipeline: [
           {
             $project: {
-              _id: 0,
-              rewardReceiver: 1,
-              unlockTime: 1,
+              unlockTime: 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      $replaceRoot:
+      /**
+       * replacementDocument: A document or string.
+       */
+      {
+        newRoot: {
+          $mergeObjects: [
+            {
+              $arrayElemAt: ["$data", 0]
             },
-          },
-        ],
-      },
+            "$$ROOT"
+          ]
+        }
+      }
     },
     {
-      $unwind: {
-        path: '$expiredReceiver',
-        preserveNullAndEmptyArrays: true,
-      },
+      $project:
+      {
+        data: 0
+      }
     },
     {
-      $match: {
-        'expiredReceiver.unlockTime': { $gt: now },
-      },
+      $match:
+      {
+        unlockTime: {
+          $gt: now
+        }
+      }
     },
     {
-      $group: {
-        _id: '$_id',
-        withdraw: { $sum: "$amount" },
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        withdraw: 1,
-      },
-    },
+      $group:
+      {
+        _id: "$delegator",
+        withdraw: {
+          $sum: {
+            $toDouble: "$amount"
+          }
+        }
+      }
+    }
   ]) as unknown as { _id: string, withdraw: number }[];
   return {
     stakeRecords: totalStake,
