@@ -8,15 +8,16 @@ let sleepTime = sleepTimeToNextSnapshot();
 let firstRun = true
 export const snapshot = async () => {
   try {
+    if (firstRun) {
+      firstRun = false
+      return
+    }
     const check = await checkSavedSparkPointToday()
     if (check) {
       sleepTime = sleepTimeToNextSnapshot(true)
       return
     }
-    if (firstRun) {
-      firstRun = false
-      return
-    }
+    
 
     log("Snapshot start")
     const { btcPrice, corePrice } = await getPrices()
