@@ -3,6 +3,7 @@ import { TYPE } from "./const";
 import { VAULT_ADDRESS } from './const'
 import coreVaultAbi from "./abi/coreVault.json"
 import axios from "axios";
+import { log } from "./helper";
 
 const calMultiplier = (type: TYPE, amount: bigint) => {
   if (type === TYPE.DUAL_CORE_SNAPSHOT) return 5;
@@ -60,5 +61,19 @@ export const getPrices = async () => {
       corePrice: res.data.data.marketPriceList[1].lastTxPrice
     }
 
+  }
+}
+
+
+export const getTodayDualCoreRecords = async () => {
+  try {
+    const res = await axios.get(`${process.env.DUAL_CORE_SNAPSHOT_SERVICE}/snapshot`)
+    if (res.status === 200) {
+      return res.data.data;
+    }
+    return []
+  } catch (error) {
+    log(error)
+    return []
   }
 }
