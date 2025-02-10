@@ -15,8 +15,8 @@ const calMultiplier = (type: TYPE, amount: bigint) => {
 
   if (type === TYPE.STAKE_BTC) {
     if (amount < parseUnits("0.01", 8)) return 0;
-    if (amount < parseUnits("5", 8)) return 1;
-    if (amount < parseUnits("10", 8)) return 2;
+    if (amount <= parseUnits("5", 8)) return 1;
+    if (amount <= parseUnits("10", 8)) return 2;
     return 3;
   }
 }
