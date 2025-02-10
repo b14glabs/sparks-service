@@ -9,3 +9,5 @@ export enum TYPE {
   STAKE_CORE = 'stake-core',
   STAKE_BTC = 'stake-btc'
 }
+
+export const SNAPSHOT_UTC_HOUR = 5
