@@ -10,4 +10,5 @@ export enum TYPE {
   STAKE_BTC = 'stake-btc'
 }
 
-export const SNAPSHOT_UTC_HOUR = 5
+export const SNAPSHOT_MIN_UTC_HOUR = 2;
+export const SNAPSHOT_TO_UTC_HOUR = 20;

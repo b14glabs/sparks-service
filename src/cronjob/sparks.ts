@@ -1,23 +1,23 @@
-import { SNAPSHOT_UTC_HOUR, TYPE } from "../const";
+import { TYPE } from "../const";
 import { ISparksPoint } from "../models";
 import { checkSavedSparkPointToday, createSparkPoint, getCurrentCoreStakedOfUsers, getTodayDualCoreRecords, getTotalBtcStakedOfUsers } from "../services"
 import { calSparksPoint, convertDualCorePrice, getPrices } from "../util";
 import { backup, log, sleepTimeToNextSnapshot } from "../helper";
 
-let sleepTime = 1000 * 60 * 20
+let sleepTime = sleepTimeToNextSnapshot();
+let firstRun = true
 export const snapshot = async () => {
   try {
-    const current = new Date();
-    const utcHour = current.getUTCHours()
-    if (utcHour < SNAPSHOT_UTC_HOUR) {
-      sleepTime = sleepTimeToNextSnapshot()
-      return
-    }
     const check = await checkSavedSparkPointToday()
     if (check) {
-      sleepTime = sleepTimeToNextSnapshot()
+      sleepTime = sleepTimeToNextSnapshot(true)
       return
     }
+    if (firstRun) {
+      firstRun = false
+      return
+    }
+
     log("Snapshot start")
     const { btcPrice, corePrice } = await getPrices()
     const dualCore = await getTodayDualCoreRecords();
@@ -103,13 +103,12 @@ export const snapshot = async () => {
     backup(records)
     await createSparkPoint(records)
     log("Snapshot done")
-    sleepTime = sleepTimeToNextSnapshot()
+    sleepTime = sleepTimeToNextSnapshot(true)
   } catch (error) {
     log(error)
   } finally {
     console.log(`wait ${sleepTime / (1000 * 60)}m`)
     setTimeout(() => {
-      sleepTime = 1000 * 60 * 20
       snapshot()
     }, sleepTime)
   }
