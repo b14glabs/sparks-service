@@ -73,9 +73,9 @@ spec:
                 secretKeyRef:
                   name: sparks-point-service
                   key: RPC_URL
-        volumeMounts:
-          - mountPath: "/home/node/app/volumes"
-            name: sparks-point-service-volumes
+          volumeMounts:
+            - mountPath: "/home/node/app/volumes"
+              name: sparks-point-service-volumes
       imagePullSecrets:
         - name: cred-docker-hub
       volumes:
