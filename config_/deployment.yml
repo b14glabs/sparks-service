@@ -73,6 +73,11 @@ spec:
                 secretKeyRef:
                   name: sparks-point-service
                   key: RPC_URL
+            - name: DUAL_CORE_SNAPSHOT_SERVICE
+              valueFrom:
+                secretKeyRef:
+                  name: sparks-point-service
+                  key: DUAL_CORE_SNAPSHOT_SERVICE
           volumeMounts:
             - mountPath: "/home/node/app/volumes"
               name: sparks-point-service-volumes
