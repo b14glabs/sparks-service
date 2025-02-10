@@ -1,5 +1,5 @@
 import { appendFileSync, writeFileSync } from "fs"
-import { SNAPSHOT_UTC_HOUR } from "./const"
+import { SNAPSHOT_MIN_UTC_HOUR, SNAPSHOT_TO_UTC_HOUR } from "./const"
 import { ISparksPoint } from "./models"
 
 export function log(content: any, persist = true) {
@@ -30,12 +30,20 @@ export function backup(data: ISparksPoint[]) {
     }
 }
 
-export const sleepTimeToNextSnapshot = () => {
+function randomInt(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+export const sleepTimeToNextSnapshot = (savedToday = false) => {
     const current = new Date()
     const nextSnapshot = new Date()
-    if (current.getUTCHours() > SNAPSHOT_UTC_HOUR) {
+    if (savedToday) {
         nextSnapshot.setDate(current.getUTCDate() + 1)
+        nextSnapshot.setUTCHours(randomInt(SNAPSHOT_MIN_UTC_HOUR, SNAPSHOT_TO_UTC_HOUR), randomInt(0, 60), 0, 0)
+    } else {
+        nextSnapshot.setUTCHours(randomInt(Math.max(current.getUTCHours() + 1, SNAPSHOT_MIN_UTC_HOUR), SNAPSHOT_TO_UTC_HOUR), randomInt(0, 60), 0, 0)
+
     }
-    nextSnapshot.setUTCHours(SNAPSHOT_UTC_HOUR, 0, 0, 0)
+    console.log(`Sleep to ${nextSnapshot.toISOString()}`)
     return nextSnapshot.getTime() - current.getTime()
 }
