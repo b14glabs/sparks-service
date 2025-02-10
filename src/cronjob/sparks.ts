@@ -1,19 +1,30 @@
-import { TYPE } from "../const";
+import { SNAPSHOT_UTC_HOUR, TYPE } from "../const";
 import { ISparksPoint } from "../models";
 import { checkSavedSparkPointToday, createSparkPoint, getCurrentCoreStakedOfUsers, getTodayDualCoreRecords, getTotalBtcStakedOfUsers } from "../services"
 import { calSparksPoint, convertDualCorePrice, getPrices } from "../util";
+import { backup, log, sleepTimeToNextSnapshot } from "../helper";
+
+let sleepTime = 1000 * 60 * 20
 export const snapshot = async () => {
   try {
     const current = new Date();
     const utcHour = current.getUTCHours()
-    if (utcHour < 5) return
-    const check = await checkSavedSparkPointToday()
-    if (check) {
-      console.log("already saved today")
+    if (utcHour < SNAPSHOT_UTC_HOUR) {
+      sleepTime = sleepTimeToNextSnapshot()
       return
     }
+    const check = await checkSavedSparkPointToday()
+    if (check) {
+      sleepTime = sleepTimeToNextSnapshot()
+      return
+    }
+    log("Snapshot start")
     const { btcPrice, corePrice } = await getPrices()
     const dualCore = await getTodayDualCoreRecords();
+    if (!dualCore.length) {
+      log("no dual core snapshot right now.")
+      return
+    }
     const btc = await getTotalBtcStakedOfUsers()
     const { stakeRecords, withdrawRecords } = await getCurrentCoreStakedOfUsers()
     const hashmap: Record<string, {
@@ -30,7 +41,7 @@ export const snapshot = async () => {
           core: BigInt(0),
           dualCore: BigInt(0)
         }
-      } 
+      }
       if (el?.type === TYPE.DUAL_CORE_SNAPSHOT) {
         hashmap[holder].dualCore += BigInt(el.amount)
       }
@@ -89,15 +100,17 @@ export const snapshot = async () => {
         })
       }
     })
-
+    backup(records)
     await createSparkPoint(records)
-    console.log("Snapshot done")
+    log("Snapshot done")
+    sleepTime = sleepTimeToNextSnapshot()
   } catch (error) {
-    console.error(error)
+    log(error)
   } finally {
-    console.log("wait 20m")
+    console.log(`wait ${sleepTime / (1000 * 60)}m`)
     setTimeout(() => {
+      sleepTime = 1000 * 60 * 20
       snapshot()
-    }, 1000 * 60 * 20)
+    }, sleepTime)
   }
 }

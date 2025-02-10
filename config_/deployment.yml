@@ -1,3 +1,39 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sparks-point-service-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: general-storage-class
+  local:
+    path: /data/sparks-point-service
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: persistent_data
+              operator: In
+              values:
+                - all
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: sparks-point-service-pvc
+spec:
+  storageClassName: general-storage-class
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,8 +73,15 @@ spec:
                 secretKeyRef:
                   name: sparks-point-service
                   key: RPC_URL
+        volumeMounts:
+          - mountPath: "/home/node/app/volumes"
+            name: sparks-point-service-volumes
       imagePullSecrets:
         - name: cred-docker-hub
+      volumes:
+        - name: sparks-point-service-volumes
+          persistentVolumeClaim:
+            claimName: sparks-point-service-pvc
 ---
 apiVersion: v1
 kind: Service
