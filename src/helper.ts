@@ -38,7 +38,7 @@ export const sleepTimeToNextSnapshot = (savedToday = false) => {
     const current = new Date()
     const nextSnapshot = new Date()
     if (savedToday) {
-        nextSnapshot.setDate(current.getUTCDate() + 1)
+        nextSnapshot.setUTCDate(current.getUTCDate() + 1)
         nextSnapshot.setUTCHours(randomInt(SNAPSHOT_MIN_UTC_HOUR, SNAPSHOT_TO_UTC_HOUR), randomInt(0, 60), 0, 0)
     } else {
         nextSnapshot.setUTCHours(randomInt(Math.max(current.getUTCHours() + 1, SNAPSHOT_MIN_UTC_HOUR), SNAPSHOT_TO_UTC_HOUR), randomInt(0, 60), 0, 0)
