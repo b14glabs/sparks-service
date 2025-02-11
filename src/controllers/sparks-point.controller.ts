@@ -1,10 +1,8 @@
 import { Request, Response } from 'express'
 import Web3 from 'web3'
 import {
-  countSparksHolder,
   findSparkRecordsWithPagination,
-  getSparkPointRecords,
-
+  getTotalPointAgg,
 } from '../services'
 
 export const getTotalPoint = async (
@@ -16,35 +14,9 @@ export const getTotalPoint = async (
       res.status(400).json({ error: 'holder is invalid address' })
       return
     }
-    const holder = Web3.utils.toChecksumAddress(req.params.holder)
-
-    let addressInfo
-
-    const records = await getSparkPointRecords()
-
-    const totalDocument = await countSparksHolder()
-
-    const addressData = records
-      .map((record, idx) => {
-        if (Web3.utils.toChecksumAddress(record['_id']) === holder) {
-          return {
-            totalPoint: record['totalPoints'],
-            rank: idx + 1,
-            holder: record['_id'],
-          }
-        }
-      })
-      .filter((el) => el != undefined)
-
-    addressInfo = addressData.length
-      ? addressData[0]
-      : {
-          holder,
-          rank: totalDocument.length ? totalDocument[0]['totalHolders'] + 1 : 0,
-          totalPoint: 0,
-        }
-
-    res.status(200).json(addressInfo)
+    const holder = req.params.holder.toLowerCase();
+    const totalPointAgg = await getTotalPointAgg(holder)
+    res.status(200).json({ holder, totalPoint: totalPointAgg.length ? totalPointAgg[0].totalPoint : 0 })
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error.message || error })
@@ -65,12 +37,12 @@ export const getHistory = async (
     const type = req.query.type as string
     const query = type
       ? {
-          holder: { $regex: `^${req.params.holder}$`, $options: 'i' },
-          type: { $eq: type },
-        }
+        holder: req.params.holder.toLowerCase(),
+        type: { $eq: type },
+      }
       : {
-          holder: { $regex: `^${req.params.holder}$`, $options: 'i' },
-        }
+        holder: req.params.holder.toLowerCase(),
+      }
 
     if (!Web3.utils.isAddress(req.params.holder)) {
       res.status(400).json({ error: 'holder is invalid address' })
