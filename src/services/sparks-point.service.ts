@@ -14,39 +14,23 @@ export const checkSavedSparkPointToday = () => {
   })
 }
 
-export const getSparkPointRecords = () => {
-  return SparksPoint.aggregate<{ _id: string; totalPoints: number }>([
+export const getTotalPointAgg = (holder: string) => {
+  return SparksPoint.aggregate([
     {
-      $group: {
-        _id: '$holder',
-        totalPoints: { $sum: '$point' },
-      },
+      $match: {
+        holder
+      }
     },
     {
-      $sort: {
-        totalPoints: -1,
-      },
-    },
-  ])
-}
-
-export const findSparkPoint = (filter: RootFilterQuery<ISparksPoint>) => {
-  return SparksPoint.findOne(filter)
-}
-
-export const countSparksHolder = () => {
-  return SparksPoint.aggregate<{ totalHolders: number }>([
-    {
-      $group: { _id: '$holder' },
-    },
-    {
-      $count: 'totalHolders',
-    },
-  ])
-}
-
-export const countSparkRecordsByHolder = (holder: string) => {
-  return SparksPoint.countDocuments({ holder })
+      $group:
+      {
+        _id: "$holder",
+        totalPoint: {
+          $sum: "$point"
+        }
+      }
+    }
+  ]) as unknown as { _id: string, totalPoint: number }[]
 }
 
 export const findSparkRecordsWithPagination = (

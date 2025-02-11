@@ -17,17 +17,6 @@ export const getTotalBtcStakedOfUsers = async () => {
         },
       },
     },
-    {
-      $match: {
-        btcAmount: { $gt: 0 },
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        btcAmount: 1,
-      },
-    },
   ]) as unknown as { _id: string, btcAmount: number }[]
 
   return totalBtc
@@ -46,41 +35,20 @@ export const getCurrentCoreStakedOfUsers = async () => {
         as: "data",
         pipeline: [
           {
-            $project: {
-              unlockTime: 1
+            $match:
+            {
+              unlockTime: {
+                $gt: now
+              }
             }
-          }
+          },
         ]
       }
     },
     {
-      $replaceRoot:
-      /**
-       * replacementDocument: A document or string.
-       */
-      {
-        newRoot: {
-          $mergeObjects: [
-            {
-              $arrayElemAt: ["$data", 0]
-            },
-            "$$ROOT"
-          ]
-        }
-      }
-    },
-    {
-      $project:
-      {
-        data: 0
-      }
-    },
-    {
-      $match:
-      {
-        unlockTime: {
-          $gt: now
-        }
+      // size 0 means expired
+      $match: {
+        data: { $size: 1 }
       }
     },
     {
@@ -105,41 +73,20 @@ export const getCurrentCoreStakedOfUsers = async () => {
         as: "data",
         pipeline: [
           {
-            $project: {
-              unlockTime: 1
+            $match:
+            {
+              unlockTime: {
+                $gt: now
+              }
             }
-          }
+          },
         ]
       }
     },
     {
-      $replaceRoot:
-      /**
-       * replacementDocument: A document or string.
-       */
-      {
-        newRoot: {
-          $mergeObjects: [
-            {
-              $arrayElemAt: ["$data", 0]
-            },
-            "$$ROOT"
-          ]
-        }
-      }
-    },
-    {
-      $project:
-      {
-        data: 0
-      }
-    },
-    {
-      $match:
-      {
-        unlockTime: {
-          $gt: now
-        }
+      // size 0 means expired
+      $match: {
+        data: { $size: 1 }
       }
     },
     {
