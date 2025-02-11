@@ -24,6 +24,7 @@ export const snapshot = async () => {
     const dualCore = await getTodayDualCoreRecords();
     if (!dualCore.length) {
       log("no dual core snapshot right now.")
+      sleepTime = sleepTimeToNextSnapshot();
       return
     }
     const btc = await getTotalBtcStakedOfUsers()
@@ -107,6 +108,7 @@ export const snapshot = async () => {
     sleepTime = sleepTimeToNextSnapshot(true)
   } catch (error) {
     log(error)
+    sleepTime = 1000 * 60 * 10
   } finally {
     console.log(`wait ${sleepTime / (1000 * 60)}m`)
     setTimeout(() => {
