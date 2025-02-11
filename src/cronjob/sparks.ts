@@ -67,7 +67,7 @@ export const snapshot = async () => {
         address,
         ...hashmap[address]
       }
-    }).filter(el => el.core >= BigInt(0)).forEach(item => {
+    }).forEach(item => {
       const dualCore = calSparksPoint(TYPE.DUAL_CORE_SNAPSHOT, item.dualCore, dualCorePrice);
       const btc = calSparksPoint(TYPE.STAKE_BTC, item.btc, btcPrice);
       const core = calSparksPoint(TYPE.STAKE_CORE, item.core, corePrice);

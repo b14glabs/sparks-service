@@ -36,7 +36,7 @@ export const convertDualCorePrice = async (corePrice: number) => {
 
 export const calSparksPoint = (type: TYPE, amount: bigint, price: number) => {
   const multiplier = calMultiplier(type, amount)
-  if (multiplier === 0) return {
+  if (multiplier === 0 || amount < 0) return {
     point: 0,
     multiplier
   };
