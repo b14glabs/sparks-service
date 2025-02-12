@@ -30,7 +30,7 @@ export const convertDualCorePrice = async (corePrice: number) => {
     jsonRpc
   )
   const exchangeRate = await coreVaultContract.exchangeCore.staticCall(parseEther("1")) as bigint
-  return corePrice / +formatEther(exchangeRate)
+  return corePrice * Number(formatEther(exchangeRate))
 }
 
 
